@@ -5,11 +5,11 @@ import {AdminView, RoleSelect, ViewerView} from "./scoreboard.tsx";
 
 function App() {
 
-    const [role, setRole] = useState(null);
+    const [role, setRole] = useState<string>("");
 
     if (!role) return <RoleSelect onSelect={setRole} />;
-    if (role === "viewer") return <ViewerView onBack={() => setRole(null)} />;
-    if (role === "admin")  return <AdminView  onBack={() => setRole(null)} />;
+    if (role === "viewer") return <ViewerView onBack={() => setRole("")} />;
+    if (role === "admin")  return <AdminView  onBack={() => setRole("")} />;
 }
 
 export default App
