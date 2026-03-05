@@ -4,11 +4,6 @@ import type { FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import type { Database } from "firebase/database";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 🔥 PASTE YOUR FIREBASE CONFIG HERE
-//    (From Firebase Console → Project Settings → Your apps → SDK setup)
-// ─────────────────────────────────────────────────────────────────────────────
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyABmnlQj4dew4cVMCOpGrUyQk2Tdw4KRyI",
   authDomain: "scoreboard-9571d.firebaseapp.com",
@@ -374,14 +369,23 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     setSaved(false);
   };
 
+  const [error, setError] = useState<string | null>(null);
+
+
   const handleSave = async () => {
     setSaving(true);
-    const next: ScoreboardState = { ...state, lastUpdated: Date.now() };
-    await saveState(next);
-    setState(next);
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setError(null);
+    try {
+      const next: ScoreboardState = { ...state, lastUpdated: Date.now() };
+      await saveState(next);
+      setState(next);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleReset = () => {
@@ -503,6 +507,17 @@ export function AdminView({ onBack }: { onBack: () => void }) {
           </ControlCard>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {error && (
+              <div style={{
+                background: "rgba(255,64,96,0.1)", border: "1px solid rgba(255,64,96,0.3)",
+                borderRadius: 12, padding: "12px 16px",
+                fontFamily: "'DM Mono', monospace", fontSize: 11,
+                color: "var(--red)", lineHeight: 1.6,
+              }}>
+                ⚠ FIREBASE ERROR<br/>{error}<br/><br/>
+                Fix: Go to Firebase Console → Realtime Database → Rules → set both "read" and "write" to <strong>true</strong>
+              </div>
+            )}
             <button className="btn" onClick={handleSave} disabled={saving} style={{
               background: saved ? "var(--green)" : "var(--cyan)",
               color: "var(--bg)", padding: "15px 0", fontSize: 14,
