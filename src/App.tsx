@@ -18,7 +18,7 @@ const decodeState = (str: string): ScoreboardState | null => {
 
 // Update your App component:
 function App() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams, _setSearchParams] = useSearchParams();
     const [role, setRole] = useState<string >("");
     const [sharedState, setSharedState] = useState<ScoreboardState | null>(null);
 
