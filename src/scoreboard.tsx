@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface Team {
+export interface Team {
     name: string;
     score: number;
 }
 
-interface ScoreboardState {
+export interface ScoreboardState {
     teamA: Team;
     teamB: Team;
     period: string;
@@ -14,7 +14,7 @@ interface ScoreboardState {
     lastUpdated: number | null;
 }
 
-const DEFAULT_STATE: ScoreboardState = {
+export const DEFAULT_STATE: ScoreboardState = {
     teamA: { name: "TEAM A", score: 0 },
     teamB: { name: "TEAM B", score: 0 },
     period: "1ST",
@@ -23,7 +23,7 @@ const DEFAULT_STATE: ScoreboardState = {
 };
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
-const STORAGE_KEY = "scoreboard-state";
+export const STORAGE_KEY = "scoreboard-state";
 
 async function loadState(): Promise<ScoreboardState | null> {
     try {
@@ -472,13 +472,17 @@ export function Scoreboard({ state }: ScoreboardProps) {
 // ─── Viewer View ─────────────────────────────────────────────────────
 interface ViewerViewProps {
     onBack: () => void;
+    sharedState?: ScoreboardState | null; // Add this line
+
 }
 
-export function ViewerView({ onBack }: ViewerViewProps) {
+export function ViewerView({ onBack, sharedState }: ViewerViewProps) {
     const [state, setState] = useState<ScoreboardState>(DEFAULT_STATE);
-    const [connected, setConnected] = useState(false);
+    const [connected, setConnected] = useState(!!sharedState);
 
     const poll = useCallback(async () => {
+        if (sharedState) return;
+
         const data = await loadState();
         if (data) {
             setState(data);
@@ -736,12 +740,15 @@ export function TeamNameInput({ label, value, color, onChange }: TeamNameInputPr
 
 interface AdminViewProps {
     onBack: () => void;
+    onShare?: (state: ScoreboardState) => string; // Add this line
+
 }
 
-export function AdminView({ onBack }: AdminViewProps) {
+export function AdminView({ onBack, onShare }: AdminViewProps) {
     const [state, setState] = useState<ScoreboardState>(DEFAULT_STATE);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [showShareTooltip, setShowShareTooltip] = useState(false);
 
     useEffect(() => {
         loadState().then(data => {
@@ -771,7 +778,14 @@ export function AdminView({ onBack }: AdminViewProps) {
         setState({ ...DEFAULT_STATE, lastUpdated: null });
         setSaved(false);
     };
-
+    const handleShare = () => {
+        if (onShare) {
+            const url = onShare(state);
+            navigator.clipboard.writeText(url);
+            setShowShareTooltip(true);
+            setTimeout(() => setShowShareTooltip(false), 2000);
+        }
+    };
     const PERIODS = ["1ST", "2ND", "3RD", "4TH", "OT", "FT"];
 
     return (
@@ -1038,7 +1052,48 @@ export function AdminView({ onBack }: AdminViewProps) {
                         >
                             {saving ? "PUBLISHING..." : saved ? "PUBLISHED!" : "PUBLISH SCORES"}
                         </button>
-
+                        {onShare && (
+                            <div style={{ position: "relative" }}>
+                                <button
+                                    className="btn"
+                                    onClick={handleShare}
+                                    style={{
+                                        background: "var(--surface-2)",
+                                        color: "var(--text)",
+                                        padding: "12px 0",
+                                        fontSize: 14,
+                                        fontWeight: 500,
+                                        border: "1px solid var(--border)",
+                                        borderRadius: 16,
+                                        width: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: 8,
+                                    }}
+                                >
+                                    <span>📋</span> Copy Share Link
+                                </button>
+                                {showShareTooltip && (
+                                    <div style={{
+                                        position: "absolute",
+                                        bottom: "100%",
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                        marginBottom: 8,
+                                        padding: "8px 12px",
+                                        background: "var(--accent)",
+                                        color: "#fff",
+                                        fontSize: 12,
+                                        borderRadius: 8,
+                                        whiteSpace: "nowrap",
+                                        animation: "fade-in 0.2s ease",
+                                    }}>
+                                        Copied to clipboard!
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <button
                             className="btn"
                             onClick={handleReset}
