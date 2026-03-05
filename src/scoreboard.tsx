@@ -1,16 +1,28 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { initializeApp } from "firebase/app";
+import type { FirebaseApp } from "firebase/app";
+import { getDatabase, ref, set, onValue } from "firebase/database";
+import type { Database } from "firebase/database";
 
-// ─── window.storage type declaration ──────────────────────────────────────
-declare global {
-  interface Window {
-    storage: {
-      get: (key: string, shared?: boolean) => Promise<{ key: string; value: string; shared: boolean } | null>;
-      set: (key: string, value: string, shared?: boolean) => Promise<{ key: string; value: string; shared: boolean } | null>;
-      delete: (key: string, shared?: boolean) => Promise<{ key: string; deleted: boolean; shared: boolean } | null>;
-      list: (prefix?: string, shared?: boolean) => Promise<{ keys: string[]; shared: boolean } | null>;
-    };
-  }
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// 🔥 PASTE YOUR FIREBASE CONFIG HERE
+//    (From Firebase Console → Project Settings → Your apps → SDK setup)
+// ─────────────────────────────────────────────────────────────────────────────
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyABmnlQj4dew4cVMCOpGrUyQk2Tdw4KRyI",
+  authDomain: "scoreboard-9571d.firebaseapp.com",
+  databaseURL: "https://scoreboard-9571d-default-rtdb.firebaseio.com",
+  projectId: "scoreboard-9571d",
+  storageBucket: "scoreboard-9571d.firebasestorage.app",
+  messagingSenderId: "374688575278",
+  appId: "1:374688575278:web:11061ad820664e300a94bf",
+  measurementId: "G-B4BFNW02XG"
+};
+
+const app: FirebaseApp = initializeApp(firebaseConfig);
+const db: Database = getDatabase(app);
+const SCORE_REF = "scoreboard/state";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface Team {
@@ -26,9 +38,6 @@ interface ScoreboardState {
   lastUpdated: number | null;
 }
 
-// ─── Storage helpers (shared across ALL devices) ───────────────────────────
-const STORAGE_KEY = "scoreboard-state-v1";
-
 const DEFAULT_STATE: ScoreboardState = {
   teamA: { name: "TEAM A", score: 0 },
   teamB: { name: "TEAM B", score: 0 },
@@ -37,18 +46,17 @@ const DEFAULT_STATE: ScoreboardState = {
   lastUpdated: null,
 };
 
-async function loadState(): Promise<ScoreboardState | null> {
-  try {
-    const result = await window.storage.get(STORAGE_KEY, true);
-    if (result) return JSON.parse(result.value) as ScoreboardState;
-  } catch (_) {}
-  return null;
+// ─── Firebase helpers ──────────────────────────────────────────────────────
+async function saveState(state: ScoreboardState): Promise<void> {
+  await set(ref(db, SCORE_REF), state);
 }
 
-async function saveState(state: ScoreboardState): Promise<void> {
-  try {
-    await window.storage.set(STORAGE_KEY, JSON.stringify(state), true);
-  } catch (_) {}
+function subscribeToState(callback: (state: ScoreboardState | null) => void): () => void {
+  const scoreRef = ref(db, SCORE_REF);
+  const unsubscribe = onValue(scoreRef, (snapshot) => {
+    callback(snapshot.exists() ? (snapshot.val() as ScoreboardState) : null);
+  });
+  return unsubscribe;
 }
 
 // ─── Styles ────────────────────────────────────────────────────────────────
@@ -73,7 +81,6 @@ const styles = `
     --amber-dim: rgba(255,184,0,0.15);
     --green: #00e5a0;
     --red: #ff4060;
-    --red-dim: rgba(255,64,96,0.15);
   }
 
   body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
@@ -101,11 +108,7 @@ const styles = `
   .btn:active { transform: scale(0.97); filter: brightness(0.95); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-  input, select {
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text);
-    transition: border-color 0.2s;
-  }
+  input, select { font-family: 'DM Sans', sans-serif; color: var(--text); transition: border-color 0.2s; }
   input:focus, select:focus { outline: none; }
 `;
 
@@ -118,15 +121,10 @@ export function RoleSelect({ onSelect }: { onSelect: (role: string) => void }) {
   return (
     <div style={{
       minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 48,
-      padding: 24,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      flexDirection: "column", gap: 48, padding: 24,
       background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,255,0.08), transparent), var(--bg)",
-      position: "relative",
-      overflow: "hidden",
+      position: "relative", overflow: "hidden",
     }}>
       <GlobalStyles />
       <div style={{
@@ -139,21 +137,15 @@ export function RoleSelect({ onSelect }: { onSelect: (role: string) => void }) {
         <div style={{
           fontFamily: "'Bebas Neue', sans-serif",
           fontSize: "clamp(56px, 14vw, 96px)",
-          letterSpacing: "0.08em",
-          color: "var(--text)",
-          lineHeight: 1,
+          letterSpacing: "0.08em", color: "var(--text)", lineHeight: 1,
           textShadow: "0 0 60px rgba(0,212,255,0.2)",
         }}>
           SCOREBOARD
         </div>
         <div style={{
-          fontFamily: "'DM Mono', monospace",
-          fontSize: 11,
-          letterSpacing: "0.4em",
-          color: "var(--cyan)",
-          textTransform: "uppercase",
-          marginTop: 10,
-          opacity: 0.8,
+          fontFamily: "'DM Mono', monospace", fontSize: 11,
+          letterSpacing: "0.4em", color: "var(--cyan)",
+          textTransform: "uppercase", marginTop: 10, opacity: 0.8,
         }}>
           LIVE · CROSS-DEVICE · REAL-TIME
         </div>
@@ -172,17 +164,11 @@ export function RoleSelect({ onSelect }: { onSelect: (role: string) => void }) {
             key={role}
             onClick={() => onSelect(role)}
             style={{
-              flex: "1 1 200px", minWidth: 200,
-              padding: "32px 24px",
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              borderRadius: 20,
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 14,
-              transition: "all 0.25s ease",
+              flex: "1 1 200px", minWidth: 200, padding: "32px 24px",
+              background: "var(--surface)", border: "1px solid var(--border)",
+              borderRadius: 20, cursor: "pointer",
+              display: "flex", flexDirection: "column", alignItems: "center",
+              gap: 14, transition: "all 0.25s ease",
             }}
             onMouseEnter={e => {
               e.currentTarget.style.borderColor = accent;
@@ -208,7 +194,7 @@ export function RoleSelect({ onSelect }: { onSelect: (role: string) => void }) {
         fontSize: 12, color: "var(--text3)", fontFamily: "'DM Mono', monospace",
         animationDelay: "0.2s",
       }}>
-        Scores sync across all devices instantly
+        Powered by Firebase — syncs instantly across all devices
       </div>
     </div>
   );
@@ -237,19 +223,13 @@ export function ScoreCard({ team, isHome }: { team: Team; isHome: boolean }) {
       alignItems: isHome ? "flex-start" : "flex-end",
       padding: "clamp(20px,4vw,44px) clamp(16px,3vw,40px)",
     }}>
-      <div style={{
-        fontFamily: "'DM Mono', monospace",
-        fontSize: 11, letterSpacing: "0.25em",
-        color: accent, marginBottom: 8, opacity: 0.8,
-      }}>
+      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.25em", color: accent, marginBottom: 8, opacity: 0.8 }}>
         {isHome ? "HOME" : "AWAY"}
       </div>
       <div style={{
         fontFamily: "'Bebas Neue', sans-serif",
-        fontSize: "clamp(22px,4.5vw,38px)",
-        letterSpacing: "0.06em",
-        color: "var(--text)",
-        marginBottom: 16,
+        fontSize: "clamp(22px,4.5vw,38px)", letterSpacing: "0.06em",
+        color: "var(--text)", marginBottom: 16,
         textAlign: isHome ? "left" : "right",
         maxWidth: "100%", wordBreak: "break-word",
       }}>
@@ -259,10 +239,8 @@ export function ScoreCard({ team, isHome }: { team: Team; isHome: boolean }) {
         className={popping ? "score-pop" : ""}
         style={{
           fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "clamp(72px,16vw,148px)",
-          letterSpacing: "-0.02em",
-          color: accent,
-          lineHeight: 1,
+          fontSize: "clamp(72px,16vw,148px)", letterSpacing: "-0.02em",
+          color: accent, lineHeight: 1,
           textShadow: `0 0 60px ${dimAccent}`,
         }}
       >
@@ -281,60 +259,23 @@ export function ScoreboardDisplay({ state }: { state: ScoreboardState }) {
   }, []);
 
   return (
-    <div style={{
-      background: "var(--surface)",
-      border: "1px solid var(--border)",
-      borderRadius: 24,
-      overflow: "hidden",
-    }}>
+    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 24, overflow: "hidden" }}>
       <div style={{
-        background: "var(--surface2)",
-        borderBottom: "1px solid var(--border)",
-        padding: "14px 24px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: 12,
+        background: "var(--surface2)", borderBottom: "1px solid var(--border)",
+        padding: "14px 24px", display: "flex", alignItems: "center",
+        justifyContent: "space-between", flexWrap: "wrap", gap: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: "var(--red)",
-            boxShadow: "0 0 12px var(--red)",
-            animation: "pulse 1.5s infinite",
-          }} />
-          <span style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 11, letterSpacing: "0.2em",
-            color: "var(--red)", fontWeight: 500,
-          }}>LIVE</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--red)", boxShadow: "0 0 12px var(--red)", animation: "pulse 1.5s infinite" }} />
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.2em", color: "var(--red)", fontWeight: 500 }}>LIVE</span>
         </div>
-
-        <div style={{
-          display: "flex", alignItems: "center", gap: 10,
-          background: "var(--surface3)",
-          padding: "8px 18px",
-          borderRadius: 100,
-          border: "1px solid var(--border2)",
-        }}>
-          <span style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 18, letterSpacing: "0.1em", color: "var(--text)",
-          }}>{state.period}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--surface3)", padding: "8px 18px", borderRadius: 100, border: "1px solid var(--border2)" }}>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: "0.1em", color: "var(--text)" }}>{state.period}</span>
           <span style={{ color: "var(--text3)", fontSize: 14 }}>·</span>
-          <span style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 16, fontWeight: 500,
-            color: tick ? "var(--cyan)" : "var(--text3)",
-            transition: "color 0.1s",
-          }}>{state.clock}</span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 16, fontWeight: 500, color: tick ? "var(--cyan)" : "var(--text3)", transition: "color 0.1s" }}>{state.clock}</span>
         </div>
-
         <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text3)", letterSpacing: "0.05em" }}>
-          {state.lastUpdated
-            ? new Date(state.lastUpdated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-            : "—"}
+          {state.lastUpdated ? new Date(state.lastUpdated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}
         </div>
       </div>
 
@@ -351,26 +292,22 @@ export function ScoreboardDisplay({ state }: { state: ScoreboardState }) {
   );
 }
 
-// ─── Viewer View ───────────────────────────────────────────────────────────
+// ─── Viewer View ── real-time Firebase subscription ────────────────────────
 export function ViewerView({ onBack }: { onBack: () => void }) {
   const [state, setState] = useState<ScoreboardState>(DEFAULT_STATE);
   const [status, setStatus] = useState<"connecting" | "live" | "offline">("connecting");
 
-  const poll = useCallback(async () => {
-    const data = await loadState();
-    if (data) {
-      setState(data);
-      setStatus("live");
-    } else {
-      setStatus("offline");
-    }
-  }, []);
-
   useEffect(() => {
-    poll();
-    const interval = setInterval(poll, 2500);
-    return () => clearInterval(interval);
-  }, [poll]);
+    const unsubscribe = subscribeToState((data) => {
+      if (data) {
+        setState(data);
+        setStatus("live");
+      } else {
+        setStatus("offline");
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const statusConfig: Record<"connecting" | "live" | "offline", { color: string; label: string }> = {
     connecting: { color: "var(--text3)", label: "CONNECTING" },
@@ -386,35 +323,21 @@ export function ViewerView({ onBack }: { onBack: () => void }) {
       display: "flex", flexDirection: "column", alignItems: "center",
     }}>
       <GlobalStyles />
-
       <div style={{
         width: "100%", maxWidth: 1200,
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "20px 24px", flexWrap: "wrap", gap: 12,
       }}>
-        <button className="btn" onClick={onBack} style={{
-          background: "var(--surface2)", color: "var(--text2)",
-          padding: "10px 20px", fontSize: 13,
-          border: "1px solid var(--border)",
-        }}>← Back</button>
-
-        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: "0.15em", color: "var(--text2)" }}>
-          SPECTATOR MODE
-        </div>
-
+        <button className="btn" onClick={onBack} style={{ background: "var(--surface2)", color: "var(--text2)", padding: "10px 20px", fontSize: 13, border: "1px solid var(--border)" }}>← Back</button>
+        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: "0.15em", color: "var(--text2)" }}>SPECTATOR MODE</div>
         <div style={{
           display: "flex", alignItems: "center", gap: 8,
-          background: "var(--surface2)",
-          padding: "8px 16px", borderRadius: 100,
-          border: "1px solid var(--border)",
-          fontFamily: "'DM Mono', monospace",
-          fontSize: 11, letterSpacing: "0.15em",
-          color: statusColor,
+          background: "var(--surface2)", padding: "8px 16px", borderRadius: 100,
+          border: "1px solid var(--border)", fontFamily: "'DM Mono', monospace",
+          fontSize: 11, letterSpacing: "0.15em", color: statusColor,
         }}>
           <div style={{
-            width: 7, height: 7, borderRadius: "50%",
-            background: statusColor,
+            width: 7, height: 7, borderRadius: "50%", background: statusColor,
             boxShadow: status === "live" ? `0 0 10px ${statusColor}` : "none",
             animation: status === "live" ? "pulse 2s infinite" : "none",
           }} />
@@ -424,27 +347,25 @@ export function ViewerView({ onBack }: { onBack: () => void }) {
 
       <div className="fade-up" style={{ width: "100%", maxWidth: 1200, padding: "0 24px 40px" }}>
         <ScoreboardDisplay state={state} />
-        <div style={{
-          marginTop: 16, textAlign: "center",
-          fontFamily: "'DM Mono', monospace",
-          fontSize: 11, color: "var(--text3)", letterSpacing: "0.1em",
-        }}>
-          AUTO-REFRESHES EVERY 2.5 SECONDS
+        <div style={{ marginTop: 16, textAlign: "center", fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text3)", letterSpacing: "0.1em" }}>
+          UPDATES INSTANTLY VIA FIREBASE
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Admin View ────────────────────────────────────────────────────────────
+// ─── Admin View ── writes to Firebase on publish ───────────────────────────
 export function AdminView({ onBack }: { onBack: () => void }) {
   const [state, setState] = useState<ScoreboardState>(DEFAULT_STATE);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    loadState().then(data => {
+    // Load current state once on mount
+    const unsubscribe = subscribeToState((data) => {
       if (data) setState(data);
+      unsubscribe();
     });
   }, []);
 
@@ -488,19 +409,10 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     <div>
       <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>{label}</label>
       <input
-        type="text"
-        value={value}
-        maxLength={20}
+        type="text" value={value} maxLength={20}
         onChange={e => onChange(e.target.value.toUpperCase())}
         placeholder="TEAM NAME"
-        style={{
-          width: "100%", height: 46, padding: "0 14px",
-          fontSize: 15, fontWeight: 600,
-          background: "var(--surface2)", border: "1px solid var(--border2)",
-          borderRadius: 10,
-          fontFamily: "'Bebas Neue', sans-serif",
-          letterSpacing: "0.08em",
-        }}
+        style={{ width: "100%", height: 46, padding: "0 14px", fontSize: 15, fontWeight: 600, background: "var(--surface2)", border: "1px solid var(--border2)", borderRadius: 10, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}
         onFocus={e => (e.target.style.borderColor = accent)}
         onBlur={e => (e.target.style.borderColor = "var(--border2)")}
       />
@@ -511,29 +423,13 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     <div>
       <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>SCORE</label>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button className="btn" onClick={() => onChange(Math.max(0, value - 1))} style={{
-          width: 46, height: 46, fontSize: 20, flexShrink: 0,
-          background: "var(--surface2)", color: "var(--text2)",
-          border: "1px solid var(--border2)",
-        }}>−</button>
+        <button className="btn" onClick={() => onChange(Math.max(0, value - 1))} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: "var(--text2)", border: "1px solid var(--border2)" }}>−</button>
         <input
-          type="number"
-          value={value}
-          min={0} max={999}
+          type="number" value={value} min={0} max={999}
           onChange={e => onChange(Math.max(0, parseInt(e.target.value) || 0))}
-          style={{
-            flex: 1, height: 46, textAlign: "center",
-            fontSize: 22, fontWeight: 700,
-            fontFamily: "'Bebas Neue', sans-serif",
-            background: "var(--surface2)", border: "1px solid var(--border2)",
-            borderRadius: 10,
-          }}
+          style={{ flex: 1, height: 46, textAlign: "center", fontSize: 22, fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", background: "var(--surface2)", border: "1px solid var(--border2)", borderRadius: 10 }}
         />
-        <button className="btn" onClick={() => onChange(Math.min(999, value + 1))} style={{
-          width: 46, height: 46, fontSize: 20, flexShrink: 0,
-          background: "var(--surface2)", color: accent,
-          border: "1px solid var(--border2)",
-        }}>+</button>
+        <button className="btn" onClick={() => onChange(Math.min(999, value + 1))} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: accent, border: "1px solid var(--border2)" }}>+</button>
       </div>
     </div>
   );
@@ -545,69 +441,35 @@ export function AdminView({ onBack }: { onBack: () => void }) {
       display: "flex", flexDirection: "column", alignItems: "center",
     }}>
       <GlobalStyles />
-
-      <div style={{
-        width: "100%", maxWidth: 1400,
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        padding: "20px 24px", flexWrap: "wrap", gap: 12,
-      }}>
-        <button className="btn" onClick={onBack} style={{
-          background: "var(--surface2)", color: "var(--text2)",
-          padding: "10px 20px", fontSize: 13,
-          border: "1px solid var(--border)",
-        }}>← Back</button>
-
-        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: "0.15em", color: "var(--amber)" }}>
-          OPERATOR CONTROL
-        </div>
-
-        <div style={{
-          fontFamily: "'DM Mono', monospace",
-          fontSize: 11, letterSpacing: "0.1em",
-          color: "var(--green)",
-          background: "var(--surface2)",
-          padding: "8px 14px", borderRadius: 100,
-          border: "1px solid var(--border)",
-        }}>
-          ⬡ SHARED SYNC ACTIVE
+      <div style={{ width: "100%", maxWidth: 1400, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", flexWrap: "wrap", gap: 12 }}>
+        <button className="btn" onClick={onBack} style={{ background: "var(--surface2)", color: "var(--text2)", padding: "10px 20px", fontSize: 13, border: "1px solid var(--border)" }}>← Back</button>
+        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: "0.15em", color: "var(--amber)" }}>OPERATOR CONTROL</div>
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "var(--green)", background: "var(--surface2)", padding: "8px 14px", borderRadius: 100, border: "1px solid var(--border)" }}>
+          🔥 FIREBASE SYNC ACTIVE
         </div>
       </div>
 
-      <div style={{
-        width: "100%", maxWidth: 1400, padding: "0 24px 40px",
-        display: "grid",
-        gridTemplateColumns: "1fr min(380px, 100%)",
-        gap: 24,
-      }}>
+      <div style={{ width: "100%", maxWidth: 1400, padding: "0 24px 40px", display: "grid", gridTemplateColumns: "1fr min(380px, 100%)", gap: 24 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.2em", color: "var(--text3)" }}>LIVE PREVIEW</div>
           <ScoreboardDisplay state={state} />
-          <div style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 11, color: "var(--text3)", letterSpacing: "0.08em",
-            textAlign: "center", marginTop: 4,
-          }}>
-            Changes publish to all viewers when you click PUBLISH
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text3)", letterSpacing: "0.08em", textAlign: "center", marginTop: 4 }}>
+            Click PUBLISH to push scores to all viewers instantly
           </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <ControlCard accent="var(--cyan)" title="HOME TEAM">
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <NameInput label="TEAM NAME" value={state.teamA.name} accent="var(--cyan)"
-                onChange={(v: string) => update(s => ({ ...s, teamA: { ...s.teamA, name: v } }))} />
-              <ScoreInput value={state.teamA.score} accent="var(--cyan)"
-                onChange={(v: number) => update(s => ({ ...s, teamA: { ...s.teamA, score: v } }))} />
+              <NameInput label="TEAM NAME" value={state.teamA.name} accent="var(--cyan)" onChange={(v: string) => update(s => ({ ...s, teamA: { ...s.teamA, name: v } }))} />
+              <ScoreInput value={state.teamA.score} accent="var(--cyan)" onChange={(v: number) => update(s => ({ ...s, teamA: { ...s.teamA, score: v } }))} />
             </div>
           </ControlCard>
 
           <ControlCard accent="var(--amber)" title="AWAY TEAM">
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <NameInput label="TEAM NAME" value={state.teamB.name} accent="var(--amber)"
-                onChange={(v: string) => update(s => ({ ...s, teamB: { ...s.teamB, name: v } }))} />
-              <ScoreInput value={state.teamB.score} accent="var(--amber)"
-                onChange={(v: number) => update(s => ({ ...s, teamB: { ...s.teamB, score: v } }))} />
+              <NameInput label="TEAM NAME" value={state.teamB.name} accent="var(--amber)" onChange={(v: string) => update(s => ({ ...s, teamB: { ...s.teamB, name: v } }))} />
+              <ScoreInput value={state.teamB.score} accent="var(--amber)" onChange={(v: number) => update(s => ({ ...s, teamB: { ...s.teamB, score: v } }))} />
             </div>
           </ControlCard>
 
@@ -619,8 +481,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   {PERIODS.map(p => (
                     <button key={p} className="btn" onClick={() => update((s: ScoreboardState) => ({ ...s, period: p }))} style={{
                       padding: "10px 6px", fontSize: 13,
-                      fontFamily: "'Bebas Neue', sans-serif",
-                      letterSpacing: "0.1em",
+                      fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.1em",
                       background: state.period === p ? "var(--cyan)" : "var(--surface2)",
                       color: state.period === p ? "var(--bg)" : "var(--text2)",
                       border: state.period === p ? "1px solid var(--cyan)" : "1px solid var(--border2)",
@@ -631,17 +492,9 @@ export function AdminView({ onBack }: { onBack: () => void }) {
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>CLOCK</label>
                 <input
-                  type="text"
-                  value={state.clock}
-                  placeholder="00:00"
+                  type="text" value={state.clock} placeholder="00:00"
                   onChange={e => update((s: ScoreboardState) => ({ ...s, clock: e.target.value }))}
-                  style={{
-                    width: "100%", height: 46, padding: "0 14px",
-                    fontSize: 18, fontWeight: 500,
-                    fontFamily: "'DM Mono', monospace",
-                    background: "var(--surface2)", border: "1px solid var(--border2)",
-                    borderRadius: 10,
-                  }}
+                  style={{ width: "100%", height: 46, padding: "0 14px", fontSize: 18, fontWeight: 500, fontFamily: "'DM Mono', monospace", background: "var(--surface2)", border: "1px solid var(--border2)", borderRadius: 10 }}
                   onFocus={e => (e.target.style.borderColor = "var(--cyan)")}
                   onBlur={e => (e.target.style.borderColor = "var(--border2)")}
                 />
@@ -652,22 +505,18 @@ export function AdminView({ onBack }: { onBack: () => void }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <button className="btn" onClick={handleSave} disabled={saving} style={{
               background: saved ? "var(--green)" : "var(--cyan)",
-              color: "var(--bg)",
-              padding: "15px 0", fontSize: 14,
-              fontFamily: "'Bebas Neue', sans-serif",
-              letterSpacing: "0.15em",
+              color: "var(--bg)", padding: "15px 0", fontSize: 14,
+              fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.15em",
               borderRadius: 14,
               boxShadow: saved ? "0 8px 24px rgba(0,229,160,0.3)" : "0 8px 24px rgba(0,212,255,0.25)",
               width: "100%",
             }}>
-              {saving ? "PUBLISHING…" : saved ? "✓ PUBLISHED TO ALL DEVICES" : "PUBLISH SCORES"}
+              {saving ? "PUBLISHING…" : saved ? "✓ PUSHED TO ALL DEVICES" : "PUBLISH SCORES"}
             </button>
             <button className="btn" onClick={handleReset} style={{
-              background: "transparent",
-              color: "var(--text3)",
+              background: "transparent", color: "var(--text3)",
               padding: "12px 0", fontSize: 13,
-              border: "1px solid var(--border)",
-              borderRadius: 14, width: "100%",
+              border: "1px solid var(--border)", borderRadius: 14, width: "100%",
             }}>
               Reset All
             </button>
