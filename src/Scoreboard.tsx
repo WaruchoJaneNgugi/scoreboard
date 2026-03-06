@@ -940,10 +940,10 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     setSaved(false);
   };
 
-  const commitTimerDuration = () => {
-    const v = parseInt(drafts.timerDuration, 10);
-    if (!isNaN(v) && v > 0) handleSelectDuration(v);
-  };
+  // const commitTimerDuration = () => {
+  //   const v = parseInt(drafts.timerDuration, 10);
+  //   if (!isNaN(v) && v > 0) handleSelectDuration(v);
+  // };
   // ─── Timer handlers ──────────────────────────────────────────────────────
   const handleSelectRound = (round: number) => {
     const defaultDuration = round === 1 ? 90 : 30;
