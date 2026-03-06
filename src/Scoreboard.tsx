@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import countdownSound from "./assets/countdownSound.mp3";
-import TenSeconds from "./assets/ting_sound.mp3";
+// import countdownSound from "./assets/countdownSound.mp3";
+// import TenSeconds from "./assets/ting_sound.mp3";
 import { initializeApp } from "firebase/app";
 import type { FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, get } from "firebase/database";
@@ -65,28 +65,28 @@ function subscribeToState(callback: (state: ScoreboardState | null) => void): ()
 }
 
 // ─── Sound helpers ─────────────────────────────────────────────────────────
-function playSound() {
-  try {
-    const audio = new Audio(countdownSound);
-    audio.volume = 1.0;
-    audio.play().catch(e => console.warn("Audio play failed:", e));
-  } catch (e) {
-    console.warn("Audio not available", e);
-  }
-}
-
-// add pause to sound when the game is paused
-// the reset button is not working
-
-function PlayTenSeconds() {
-  try {
-    const audio = new Audio(TenSeconds);
-    audio.volume = 1.0;
-    audio.play().catch(e => console.warn("Audio play failed:", e));
-  } catch (e) {
-    console.warn("Audio not available", e);
-  }
-}
+// function playSound() {
+//   try {
+//     const audio = new Audio(countdownSound);
+//     audio.volume = 1.0;
+//     audio.play().catch(e => console.warn("Audio play failed:", e));
+//   } catch (e) {
+//     console.warn("Audio not available", e);
+//   }
+// }
+//
+// // add pause to sound when the game is paused
+// // the reset button is not working
+//
+// function PlayTenSeconds() {
+//   try {
+//     const audio = new Audio(TenSeconds);
+//     audio.volume = 1.0;
+//     audio.play().catch(e => console.warn("Audio play failed:", e));
+//   } catch (e) {
+//     console.warn("Audio not available", e);
+//   }
+// }
 
 // At 10 seconds: plays the sound (two beeps)
 // function playWarningBeep() { PlayTenSeconds(); }
