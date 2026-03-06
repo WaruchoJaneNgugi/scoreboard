@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import countdownSound from "./assets/countdownSound.mp3";
-import tenseconds from "./assets/ting_sound.mp3";
+import TenSeconds from "./assets/ting_sound.mp3";
 import { initializeApp } from "firebase/app";
 import type { FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, get } from "firebase/database";
@@ -77,7 +77,7 @@ function playSound() {
 
 function PlayTenSeconds() {
   try {
-    const audio = new Audio(tenseconds);
+    const audio = new Audio(TenSeconds);
     audio.volume = 1.0;
     audio.play().catch(e => console.warn("Audio play failed:", e));
   } catch (e) {
@@ -432,80 +432,80 @@ function CountdownDisplay({ state }: { state: ScoreboardState }) {
   const ringColor = isEnd ? "#333" : isWarning ? "var(--red)" : "var(--green)";
 
   return (
-    <div style={{
-      background: "var(--surface)", border: `1px solid ${isWarning ? "rgba(255,64,96,0.4)" : "var(--border)"}`,
-      borderRadius: 24, padding: "28px 24px",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
-      transition: "border-color 0.3s",
-      boxShadow: isWarning ? "0 0 40px rgba(255,64,96,0.15)" : "none",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{
-          fontFamily: "'DM Mono', monospace", fontSize: 11,
-          letterSpacing: "0.25em", color: "var(--text3)",
-        }}>
-          ROUND {state.timerRound} TIMER
-        </div>
-        {state.timerRunning && !isEnd && (
+      <div style={{
+        background: "var(--surface)", border: `1px solid ${isWarning ? "rgba(255,64,96,0.4)" : "var(--border)"}`,
+        borderRadius: 24, padding: "28px 24px",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+        transition: "border-color 0.3s",
+        boxShadow: isWarning ? "0 0 40px rgba(255,64,96,0.15)" : "none",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
-            width: 7, height: 7, borderRadius: "50%", background: "var(--green)",
-            boxShadow: "0 0 10px var(--green)", animation: "pulse 1s infinite",
-          }} />
-        )}
-      </div>
-
-      {/* Circular progress ring */}
-      <div style={{ position: "relative", width: 140, height: 140 }}>
-        <svg width="140" height="140" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx="70" cy="70" r="54" fill="none" stroke="var(--surface3)" strokeWidth="8" />
-          <circle
-            cx="70" cy="70" r="54" fill="none"
-            stroke={ringColor}
-            strokeWidth="8"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - progress)}
-            strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset 0.25s linear, stroke 0.3s ease" }}
-          />
-        </svg>
-        <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-        }}>
-          <div
-            className={isWarning ? "timer-warning" : ""}
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: isEnd ? 36 : 52,
-              letterSpacing: "-0.02em",
-              color: timerColor,
-              lineHeight: 1,
-              textShadow: isWarning ? "0 0 30px rgba(255,64,96,0.6)" : isEnd ? "none" : "0 0 20px rgba(0,229,160,0.4)",
-            }}
-          >
-            {isEnd ? "END" : secs}
+            fontFamily: "'DM Mono', monospace", fontSize: 11,
+            letterSpacing: "0.25em", color: "var(--text3)",
+          }}>
+            ROUND {state.timerRound} TIMER
           </div>
-          {!isEnd && (
-            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "var(--text3)", letterSpacing: "0.1em" }}>
-              SEC
-            </div>
+          {state.timerRunning && !isEnd && (
+              <div style={{
+                width: 7, height: 7, borderRadius: "50%", background: "var(--green)",
+                boxShadow: "0 0 10px var(--green)", animation: "pulse 1s infinite",
+              }} />
           )}
         </div>
-      </div>
 
-      <div style={{
-        display: "flex", gap: 12, alignItems: "center",
-        fontFamily: "'DM Mono', monospace", fontSize: 11,
-        color: "var(--text3)", letterSpacing: "0.1em",
-      }}>
-        <span>DURATION: {state.timerDuration}s</span>
-        <span style={{ color: "var(--surface3)" }}>|</span>
-        <span style={{ color: state.timerRunning && !isEnd ? "var(--green)" : "var(--text3)" }}>
+        {/* Circular progress ring */}
+        <div style={{ position: "relative", width: 140, height: 140 }}>
+          <svg width="140" height="140" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="var(--surface3)" strokeWidth="8" />
+            <circle
+                cx="70" cy="70" r="54" fill="none"
+                stroke={ringColor}
+                strokeWidth="8"
+                strokeDasharray={circumference}
+                strokeDashoffset={circumference * (1 - progress)}
+                strokeLinecap="round"
+                style={{ transition: "stroke-dashoffset 0.25s linear, stroke 0.3s ease" }}
+            />
+          </svg>
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+          }}>
+            <div
+                className={isWarning ? "timer-warning" : ""}
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: isEnd ? 36 : 52,
+                  letterSpacing: "-0.02em",
+                  color: timerColor,
+                  lineHeight: 1,
+                  textShadow: isWarning ? "0 0 30px rgba(255,64,96,0.6)" : isEnd ? "none" : "0 0 20px rgba(0,229,160,0.4)",
+                }}
+            >
+              {isEnd ? "END" : secs}
+            </div>
+            {!isEnd && (
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "var(--text3)", letterSpacing: "0.1em" }}>
+                  SEC
+                </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{
+          display: "flex", gap: 12, alignItems: "center",
+          fontFamily: "'DM Mono', monospace", fontSize: 11,
+          color: "var(--text3)", letterSpacing: "0.1em",
+        }}>
+          <span>DURATION: {state.timerDuration}s</span>
+          <span style={{ color: "var(--surface3)" }}>|</span>
+          <span style={{ color: state.timerRunning && !isEnd ? "var(--green)" : "var(--text3)" }}>
           {isEnd ? "FINISHED" : state.timerRunning ? "RUNNING" : "READY"}
         </span>
+        </div>
       </div>
-    </div>
   );
 }
 
@@ -580,134 +580,134 @@ export function TimerOnlyView({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh", width: "100%",
-      background: isWarning
-        ? "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,64,96,0.07), transparent), var(--bg)"
-        : "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,229,160,0.05), transparent), var(--bg)",
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      position: "relative", overflow: "hidden",
-      transition: "background 0.5s ease",
-    }}>
-      <GlobalStyles />
-
-      {/* Grid pattern */}
       <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        backgroundImage: "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
-        backgroundSize: "80px 80px",
-      }} />
-
-      {/* Back button + status — top bar */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "20px 28px",
+        minHeight: "100vh", width: "100%",
+        background: isWarning
+            ? "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,64,96,0.07), transparent), var(--bg)"
+            : "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,229,160,0.05), transparent), var(--bg)",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        position: "relative", overflow: "hidden",
+        transition: "background 0.5s ease",
       }}>
-        <button className="btn" onClick={onBack} style={{ background: "var(--surface2)", color: "var(--text2)", padding: "10px 20px", fontSize: 13, border: "1px solid var(--border)" }}>← Back</button>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--surface2)", padding: "8px 16px", borderRadius: 100, border: "1px solid var(--border)", fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.15em", color: statusColors[status] }}>
-          <div style={{ width: 7, height: 7, borderRadius: "50%", background: statusColors[status], boxShadow: status === "live" ? `0 0 10px ${statusColors[status]}` : "none", animation: status === "live" ? "pulse 2s infinite" : "none" }} />
-          {status.toUpperCase()}
-        </div>
-      </div>
+        <GlobalStyles />
 
-      {/* Round label */}
-      <div style={{
-        fontFamily: "'DM Mono', monospace", fontSize: 13,
-        letterSpacing: "0.4em", color: "var(--text3)",
-        marginBottom: 40, textTransform: "uppercase",
-        position: "relative",
-      }}>
-        ROUND {state.timerRound} · {state.timerDuration}s
-      </div>
-
-      {/* Big circular ring */}
-      <div style={{ position: "relative", width: 480, height: 480, maxWidth: "min(480px, 80vw)", maxHeight: "min(480px, 80vw)" }}>
-        <svg
-          width="100%" height="100%"
-          viewBox="0 0 480 480"
-          style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 30px ${glowColor})` }}
-        >
-          {/* Track */}
-          <circle cx="240" cy="240" r={R} fill="none" stroke="var(--surface3)" strokeWidth="14" />
-          {/* Progress arc */}
-          <circle
-            cx="240" cy="240" r={R} fill="none"
-            stroke={ringColor}
-            strokeWidth="14"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - progress)}
-            strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset 0.15s linear, stroke 0.4s ease" }}
-          />
-        </svg>
-
-        {/* Center content */}
+        {/* Grid pattern */}
         <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", gap: 4,
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+          backgroundSize: "80px 80px",
+        }} />
+
+        {/* Back button + status — top bar */}
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "20px 28px",
         }}>
-          {isEnd ? (
-            <div style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(60px, 14vw, 110px)",
-              letterSpacing: "0.08em",
-              color: "var(--text3)",
-              lineHeight: 1,
-            }}>
-              TIME
-            </div>
-          ) : (
-            <>
-              <div
-                className={isWarning ? "timer-warning" : ""}
-                style={{
+          <button className="btn" onClick={onBack} style={{ background: "var(--surface2)", color: "var(--text2)", padding: "10px 20px", fontSize: 13, border: "1px solid var(--border)" }}>← Back</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--surface2)", padding: "8px 16px", borderRadius: 100, border: "1px solid var(--border)", fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.15em", color: statusColors[status] }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: statusColors[status], boxShadow: status === "live" ? `0 0 10px ${statusColors[status]}` : "none", animation: status === "live" ? "pulse 2s infinite" : "none" }} />
+            {status.toUpperCase()}
+          </div>
+        </div>
+
+        {/* Round label */}
+        <div style={{
+          fontFamily: "'DM Mono', monospace", fontSize: 13,
+          letterSpacing: "0.4em", color: "var(--text3)",
+          marginBottom: 40, textTransform: "uppercase",
+          position: "relative",
+        }}>
+          ROUND {state.timerRound} · {state.timerDuration}s
+        </div>
+
+        {/* Big circular ring */}
+        <div style={{ position: "relative", width: 480, height: 480, maxWidth: "min(480px, 80vw)", maxHeight: "min(480px, 80vw)" }}>
+          <svg
+              width="100%" height="100%"
+              viewBox="0 0 480 480"
+              style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 30px ${glowColor})` }}
+          >
+            {/* Track */}
+            <circle cx="240" cy="240" r={R} fill="none" stroke="var(--surface3)" strokeWidth="14" />
+            {/* Progress arc */}
+            <circle
+                cx="240" cy="240" r={R} fill="none"
+                stroke={ringColor}
+                strokeWidth="14"
+                strokeDasharray={circumference}
+                strokeDashoffset={circumference * (1 - progress)}
+                strokeLinecap="round"
+                style={{ transition: "stroke-dashoffset 0.15s linear, stroke 0.4s ease" }}
+            />
+          </svg>
+
+          {/* Center content */}
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: 4,
+          }}>
+            {isEnd ? (
+                <div style={{
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: "clamp(90px, 20vw, 160px)",
-                  letterSpacing: "-0.03em",
-                  color: timerColor,
+                  fontSize: "clamp(60px, 14vw, 110px)",
+                  letterSpacing: "0.08em",
+                  color: "var(--text3)",
                   lineHeight: 1,
-                  textShadow: isWarning
-                    ? "0 0 60px rgba(255,64,96,0.7)"
-                    : isEnd ? "none"
-                    : "0 0 40px rgba(0,229,160,0.4)",
-                }}
-              >
-                {secs}
-              </div>
-              <div style={{
-                fontFamily: "'DM Mono', monospace",
-                fontSize: "clamp(12px, 2vw, 18px)",
-                letterSpacing: "0.3em",
-                color: isWarning ? "rgba(255,64,96,0.6)" : "var(--text3)",
-              }}>
-                SECONDS
-              </div>
-            </>
+                }}>
+                  TIME
+                </div>
+            ) : (
+                <>
+                  <div
+                      className={isWarning ? "timer-warning" : ""}
+                      style={{
+                        fontFamily: "'Bebas Neue', sans-serif",
+                        fontSize: "clamp(90px, 20vw, 160px)",
+                        letterSpacing: "-0.03em",
+                        color: timerColor,
+                        lineHeight: 1,
+                        textShadow: isWarning
+                            ? "0 0 60px rgba(255,64,96,0.7)"
+                            : isEnd ? "none"
+                                : "0 0 40px rgba(0,229,160,0.4)",
+                      }}
+                  >
+                    {secs}
+                  </div>
+                  <div style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: "clamp(12px, 2vw, 18px)",
+                    letterSpacing: "0.3em",
+                    color: isWarning ? "rgba(255,64,96,0.6)" : "var(--text3)",
+                  }}>
+                    SECONDS
+                  </div>
+                </>
+            )}
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <div style={{
+          marginTop: 48,
+          display: "flex", alignItems: "center", gap: 16,
+          fontFamily: "'DM Mono', monospace", fontSize: 12,
+          letterSpacing: "0.2em", color: "var(--text3)",
+        }}>
+          {state.timerRunning && !isEnd && (
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", boxShadow: "0 0 12px var(--green)", animation: "pulse 1s infinite" }} />
+          )}
+          <span style={{ color: isEnd ? "var(--text3)" : state.timerRunning ? "var(--green)" : "var(--text2)" }}>
+          {isEnd ? "FINISHED" : state.timerRunning ? "RUNNING" : "READY"}
+        </span>
+          {!isEnd && !state.timerRunning && (
+              <span style={{ color: "var(--text3)" }}>· WAITING FOR OPERATOR</span>
           )}
         </div>
       </div>
-
-      {/* Status bar */}
-      <div style={{
-        marginTop: 48,
-        display: "flex", alignItems: "center", gap: 16,
-        fontFamily: "'DM Mono', monospace", fontSize: 12,
-        letterSpacing: "0.2em", color: "var(--text3)",
-      }}>
-        {state.timerRunning && !isEnd && (
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", boxShadow: "0 0 12px var(--green)", animation: "pulse 1s infinite" }} />
-        )}
-        <span style={{ color: isEnd ? "var(--text3)" : state.timerRunning ? "var(--green)" : "var(--text2)" }}>
-          {isEnd ? "FINISHED" : state.timerRunning ? "RUNNING" : "READY"}
-        </span>
-        {!isEnd && !state.timerRunning && (
-          <span style={{ color: "var(--text3)" }}>· WAITING FOR OPERATOR</span>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -775,6 +775,21 @@ export function ViewerView({ onBack }: { onBack: () => void }) {
   );
 }
 import "../src/style.css"
+function ControlCard({ children, accent, title }: { children: React.ReactNode; accent: string; title: string }) {
+  return (
+      <div
+          style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, padding: 24, transition: "border-color 0.2s" }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = accent + "40")}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+          <div style={{ width: 7, height: 7, borderRadius: "50%", background: accent, boxShadow: `0 0 10px ${accent}` }} />
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.2em", color: accent }}>{title}</span>
+        </div>
+        {children}
+      </div>
+  );
+}
 // ─── Admin View ── writes to Firebase on publish ───────────────────────────
 export function AdminView({ onBack }: { onBack: () => void }) {
   const [state, setState] = useState<ScoreboardState>(DEFAULT_STATE);
@@ -782,14 +797,27 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   const [saved, setSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+// Draft state — local only, not synced until Enter
+  const [drafts, setDrafts] = useState({
+    teamAName: DEFAULT_STATE.teamA.name,
+    teamBName: DEFAULT_STATE.teamB.name,
+    clock: DEFAULT_STATE.clock,
+    timerDuration: String(DEFAULT_STATE.timerDuration),
+  });
   useEffect(() => {
     const scoreRef = ref(db, SCORE_REF);
     const loadInitialState = async () => {
       try {
         const snapshot = await get(scoreRef);
         if (snapshot.exists()) {
-          setState({ ...DEFAULT_STATE, ...snapshot.val() as ScoreboardState });
+          const loaded = { ...DEFAULT_STATE, ...snapshot.val() as ScoreboardState };
+          setState(loaded);
+          setDrafts({
+            teamAName: loaded.teamA.name,
+            teamBName: loaded.teamB.name,
+            clock: loaded.clock,
+            timerDuration: String(loaded.timerDuration),
+          });
         }
       } catch (err) {
         console.error("Failed to load initial state:", err);
@@ -802,11 +830,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
 
   // FIXED: Separate handlers for each input type
   const handleTeamANameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setState(prev => ({
-      ...prev,
-      teamA: { ...prev.teamA, name: e.target.value.toUpperCase() }
-    }));
-    setSaved(false);
+    setDrafts(d => ({ ...d, teamAName: e.target.value.toUpperCase() }));
   };
 
   const handleTeamAScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -825,12 +849,9 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   };
 
   const handleTeamBNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setState(prev => ({
-      ...prev,
-      teamB: { ...prev.teamB, name: e.target.value.toUpperCase() }
-    }));
-    setSaved(false);
+    setDrafts(d => ({ ...d, teamBName: e.target.value.toUpperCase() }));
   };
+
 
   const handleTeamBScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
@@ -849,8 +870,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   // const teamBScoreRef = useRef<HTMLInputElement>(null);
 
   const handleClockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setState(prev => ({ ...prev, clock: e.target.value }));
-    setSaved(false);
+    setDrafts(d => ({ ...d, clock: e.target.value }));
   };
 
   const handlePeriodChange = (period: string) => {
@@ -905,7 +925,25 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     }));
     setSaved(false);
   };
+  const commitTeamAName = () => {
+    setState(prev => ({ ...prev, teamA: { ...prev.teamA, name: drafts.teamAName } }));
+    setSaved(false);
+  };
 
+  const commitTeamBName = () => {
+    setState(prev => ({ ...prev, teamB: { ...prev.teamB, name: drafts.teamBName } }));
+    setSaved(false);
+  };
+
+  const commitClock = () => {
+    setState(prev => ({ ...prev, clock: drafts.clock }));
+    setSaved(false);
+  };
+
+  const commitTimerDuration = () => {
+    const v = parseInt(drafts.timerDuration, 10);
+    if (!isNaN(v) && v > 0) handleSelectDuration(v);
+  };
   // ─── Timer handlers ──────────────────────────────────────────────────────
   const handleSelectRound = (round: number) => {
     const defaultDuration = round === 1 ? 90 : 30;
@@ -1016,19 +1054,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     return () => clearInterval(interval);
   }, [state.timerRunning, state.timerStartedAt, state.timerDuration]);
 
-  const ControlCard = ({ children, accent, title }: { children: React.ReactNode; accent: string; title: string }) => (
-      <div
-          style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, padding: 24, transition: "border-color 0.2s" }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = accent + "40")}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-          <div style={{ width: 7, height: 7, borderRadius: "50%", background: accent, boxShadow: `0 0 10px ${accent}` }} />
-          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: "0.2em", color: accent }}>{title}</span>
-        </div>
-        {children}
-      </div>
-  );
+
 
   if (isLoading) {
     return (
@@ -1082,16 +1108,16 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>SELECT ROUND</label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                     {[1, 2].map(r => (
-                      <button key={r} className="btn" onClick={() => handleSelectRound(r)} style={{
-                        padding: "12px 6px",
-                        fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: "0.1em",
-                        background: state.timerRound === r ? "var(--green)" : "var(--surface2)",
-                        color: state.timerRound === r ? "var(--bg)" : "var(--text2)",
-                        border: state.timerRound === r ? "1px solid var(--green)" : "1px solid var(--border2)",
-                        boxShadow: state.timerRound === r ? "0 0 20px rgba(0,229,160,0.3)" : "none",
-                      }}>
-                        ROUND {r}
-                      </button>
+                        <button key={r} className="btn" onClick={() => handleSelectRound(r)} style={{
+                          padding: "12px 6px",
+                          fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: "0.1em",
+                          background: state.timerRound === r ? "var(--green)" : "var(--surface2)",
+                          color: state.timerRound === r ? "var(--bg)" : "var(--text2)",
+                          border: state.timerRound === r ? "1px solid var(--green)" : "1px solid var(--border2)",
+                          boxShadow: state.timerRound === r ? "0 0 20px rgba(0,229,160,0.3)" : "none",
+                        }}>
+                          ROUND {r}
+                        </button>
                     ))}
                   </div>
                 </div>
@@ -1103,15 +1129,15 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   </label>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
                     {(state.timerRound === 1 ? ROUND1_DURATIONS : ROUND2_DURATIONS).map(d => (
-                      <button key={d} className="btn" onClick={() => handleSelectDuration(d)} style={{
-                        padding: "12px 6px",
-                        fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: "0.05em",
-                        background: state.timerDuration === d ? "rgba(0,229,160,0.15)" : "var(--surface2)",
-                        color: state.timerDuration === d ? "var(--green)" : "var(--text2)",
-                        border: state.timerDuration === d ? "1px solid var(--green)" : "1px solid var(--border2)",
-                      }}>
-                        {d}s
-                      </button>
+                        <button key={d} className="btn" onClick={() => handleSelectDuration(d)} style={{
+                          padding: "12px 6px",
+                          fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: "0.05em",
+                          background: state.timerDuration === d ? "rgba(0,229,160,0.15)" : "var(--surface2)",
+                          color: state.timerDuration === d ? "var(--green)" : "var(--text2)",
+                          border: state.timerDuration === d ? "1px solid var(--green)" : "1px solid var(--border2)",
+                        }}>
+                          {d}s
+                        </button>
                     ))}
                   </div>
                 </div>
@@ -1120,23 +1146,23 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>CUSTOM DURATION (SECONDS)</label>
                   <input
-                    type="number"
-                    value={state.timerDuration}
-                    min={1}
-                    max={9999}
-                    onChange={e => {
-                      const v = parseInt(e.target.value, 10);
-                      if (!isNaN(v) && v > 0) handleSelectDuration(v);
-                    }}
-                    onFocus={handleFocus}
-                    style={{
-                      width: "100%", height: 46, textAlign: "center",
-                      fontSize: 20, fontWeight: 700,
-                      fontFamily: "'Bebas Neue', sans-serif",
-                      background: "var(--surface2)", border: "1px solid var(--border2)",
-                      borderRadius: 10, color: "var(--text)", padding: "0 8px",
-                    }}
-                    onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
+                      type="number"
+                      value={state.timerDuration}
+                      min={1}
+                      max={9999}
+                      onChange={e => {
+                        const v = parseInt(e.target.value, 10);
+                        if (!isNaN(v) && v > 0) handleSelectDuration(v);
+                      }}
+                      onFocus={handleFocus}
+                      style={{
+                        width: "100%", height: 46, textAlign: "center",
+                        fontSize: 20, fontWeight: 700,
+                        fontFamily: "'Bebas Neue', sans-serif",
+                        background: "var(--surface2)", border: "1px solid var(--border2)",
+                        borderRadius: 10, color: "var(--text)", padding: "0 8px",
+                      }}
+                      onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
                   />
                 </div>
 
@@ -1174,28 +1200,28 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                 {/* Timer controls */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                   <button
-                    className="btn"
-                    onClick={state.timerRunning ? handleTimerStop : handleTimerStart}
-                    style={{
-                      padding: "13px 0", fontSize: 13,
-                      fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.12em",
-                      background: state.timerRunning ? "rgba(255,64,96,0.2)" : "rgba(0,229,160,0.2)",
-                      color: state.timerRunning ? "var(--red)" : "var(--green)",
-                      border: state.timerRunning ? "1px solid rgba(255,64,96,0.4)" : "1px solid rgba(0,229,160,0.4)",
-                      borderRadius: 12,
-                    }}
+                      className="btn"
+                      onClick={state.timerRunning ? handleTimerStop : handleTimerStart}
+                      style={{
+                        padding: "13px 0", fontSize: 13,
+                        fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.12em",
+                        background: state.timerRunning ? "rgba(255,64,96,0.2)" : "rgba(0,229,160,0.2)",
+                        color: state.timerRunning ? "var(--red)" : "var(--green)",
+                        border: state.timerRunning ? "1px solid rgba(255,64,96,0.4)" : "1px solid rgba(0,229,160,0.4)",
+                        borderRadius: 12,
+                      }}
                   >
                     {state.timerRunning ? "⏸ PAUSE" : "▶ START"}
                   </button>
                   <button
-                    className="btn"
-                    onClick={handleTimerReset}
-                    style={{
-                      padding: "13px 0", fontSize: 13,
-                      fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.12em",
-                      background: "var(--surface2)", color: "var(--text2)",
-                      border: "1px solid var(--border2)", borderRadius: 12,
-                    }}
+                      className="btn"
+                      onClick={handleTimerReset}
+                      style={{
+                        padding: "13px 0", fontSize: 13,
+                        fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.12em",
+                        background: "var(--surface2)", color: "var(--text2)",
+                        border: "1px solid var(--border2)", borderRadius: 12,
+                      }}
                   >
                     ↺ RESET
                   </button>
@@ -1215,8 +1241,9 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   <input
                       ref={teamANameRef}
                       type="text"
-                      value={state.teamA.name}
+                      value={drafts.teamAName}                         // ← drafts
                       onChange={handleTeamANameChange}
+                      onKeyDown={e => e.key === "Enter" && commitTeamAName()}  // ← commit on Enter
                       onFocus={handleFocus}
                       placeholder="Enter team name..."
                       maxLength={20}
@@ -1284,8 +1311,9 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>TEAM NAME</label>
                   <input
                       type="text"
-                      value={state.teamB.name}
+                      value={drafts.teamBName}
                       onChange={handleTeamBNameChange}
+                      onKeyDown={e => e.key === "Enter" && commitTeamBName()}
                       onFocus={handleFocus}
                       placeholder="Enter team name..."
                       maxLength={20}
@@ -1367,8 +1395,9 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>CLOCK</label>
                   <input
                       type="text"
-                      value={state.clock}
+                      value={drafts.clock}
                       onChange={handleClockChange}
+                      onKeyDown={e => e.key === "Enter" && commitClock()}
                       onFocus={handleFocus}
                       placeholder="00:00"
                       className="field-input"
