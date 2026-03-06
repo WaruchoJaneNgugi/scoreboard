@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import countdownSound from "./assets/endsound.mp3";
-import tenSeconds from "./assets/ting_sound.mp3";
+import countdownSound from "./assets/countdownSound.mp3";
+import tenseconds from "./assets/ting_sound.mp3";
 import { initializeApp } from "firebase/app";
 import type { FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, get } from "firebase/database";
@@ -74,9 +74,10 @@ function playSound() {
     console.warn("Audio not available", e);
   }
 }
-function playTenSecondsSound() {
+
+function PlayTenSeconds() {
   try {
-    const audio = new Audio(tenSeconds);
+    const audio = new Audio(tenseconds);
     audio.volume = 1.0;
     audio.play().catch(e => console.warn("Audio play failed:", e));
   } catch (e) {
@@ -85,7 +86,7 @@ function playTenSecondsSound() {
 }
 
 // At 10 seconds: plays the sound (two beeps)
-function playWarningBeep() { playTenSecondsSound(); }
+function playWarningBeep() { PlayTenSeconds(); }
 
 // At 0 seconds: plays the sound (final beep)
 function playEndBuzzer() { playSound(); }
@@ -144,6 +145,42 @@ const styles = `
 
   input, select { font-family: 'DM Sans', sans-serif; color: var(--text); transition: border-color 0.2s; }
   input:focus, select:focus { outline: none; }
+
+  /* ── Clean editable input style ── */
+  .field-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+    border-radius: 0;
+    padding: 10px 4px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    transition: border-color 0.2s;
+    display: block;
+  }
+  .field-input:focus { outline: none; border-bottom-color: var(--cyan); }
+  .field-input::placeholder { color: var(--text3); font-weight: 400; }
+
+  .field-input.amber:focus { border-bottom-color: var(--amber); }
+
+  .score-input {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px 8px;
+    color: var(--text);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    text-align: center;
+    width: 100%;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .score-input:focus { outline: none; background: rgba(255,255,255,0.04); }
+  .score-input.cyan:focus { border-color: var(--cyan); }
+  .score-input.amber:focus { border-color: var(--amber); }
 `;
 
 function GlobalStyles() {
@@ -367,14 +404,17 @@ function CountdownDisplay({ state }: { state: ScoreboardState }) {
       const rem = Math.max(0, state.timerDuration - elapsed);
       setRemaining(rem);
 
-      // 10-second warning sound
-      if (rem <= 3 && rem > 0 && !warned10Ref.current) {
+      // 5-second warning sound
+      if (rem <= 4 && rem > 0 && !warned10Ref.current) {
+        warned10Ref.current = true;
+        playWarningBeep();
+      }
+      if (rem <= 10 && rem > 0 && !warned10Ref.current) {
         warned10Ref.current = true;
         playEndBuzzer();
+      }
 
-              }
-
-
+      // End buzzer removed
     };
 
     tick(); // immediate
@@ -510,13 +550,13 @@ export function TimerOnlyView({ onBack }: { onBack: () => void }) {
       const elapsed = (Date.now() - (state.timerStartedAt as number)) / 1000;
       const rem = Math.max(0, state.timerDuration - elapsed);
       setRemaining(rem);
-      if (rem <= 3 && rem > 0 && !warned10Ref.current) {
+      if (rem <= 4 && rem > 0 && !warned10Ref.current) {
+        warned10Ref.current = true;
+        playWarningBeep();
+      }
+      if (rem <= 10 && rem > 0 && !warned10Ref.current) {
         warned10Ref.current = true;
         playEndBuzzer();
-      }
-      if (rem <= 10 && rem > 0 && !warnedEndRef.current) {
-        warnedEndRef.current = true;
-        playWarningBeep();
       }
     };
     tick();
@@ -1096,7 +1136,6 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       background: "var(--surface2)", border: "1px solid var(--border2)",
                       borderRadius: 10, color: "var(--text)", padding: "0 8px",
                     }}
-                    // onFocus={(e) => e.target.style.borderColor = "var(--green)"}
                     onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
                   />
                 </div>
@@ -1179,25 +1218,22 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       value={state.teamA.name}
                       onChange={handleTeamANameChange}
                       onFocus={handleFocus}
-                      placeholder="TEAM NAME"
+                      placeholder="Enter team name..."
                       maxLength={20}
-                      style={{
-                        width: "100%", height: 46, padding: "0 14px",
-                        fontSize: 15, fontWeight: 600,
-                        fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em",
-                        background: "var(--surface2)", border: "1px solid var(--border2)",
-                        borderRadius: 10, color: "var(--text)",
-                      }}
-                      // onFocus={(e) => e.target.style.borderColor = "var(--cyan)"}
-                      onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
+                      className="field-input"
+                      style={{ letterSpacing: "0.06em" }}
                   />
                 </div>
 
                 {/* HOME TEAM SCORE */}
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>SCORE</label>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-                    <button className="btn" onClick={handleDecrementHome} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: "var(--text2)", border: "1px solid var(--border2)" }}>−</button>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 12 }}>
+                    <button className="btn" onClick={handleDecrementHome} style={{
+                      width: 52, height: 52, fontSize: 24, flexShrink: 0,
+                      background: "rgba(255,255,255,0.05)", color: "var(--text2)",
+                      border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12,
+                    }}>−</button>
                     <input
                         ref={teamAScoreRef}
                         type="number"
@@ -1205,17 +1241,13 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                         min={0} max={9999}
                         onChange={handleTeamAScoreChange}
                         onFocus={handleFocus}
-                        style={{
-                          flex: 1, height: 46, textAlign: "center",
-                          fontSize: 22, fontWeight: 700,
-                          fontFamily: "'Bebas Neue', sans-serif",
-                          background: "var(--surface2)", border: "1px solid var(--border2)",
-                          borderRadius: 10, color: "var(--text)", padding: "0 8px",
-                        }}
-                        // onFocus={(e) => e.target.style.borderColor = "var(--cyan)"}
-                        onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
+                        className="score-input cyan"
                     />
-                    <button className="btn" onClick={handleIncrementHome} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: "var(--cyan)", border: "1px solid var(--border2)" }}>+</button>
+                    <button className="btn" onClick={handleIncrementHome} style={{
+                      width: 52, height: 52, fontSize: 24, flexShrink: 0,
+                      background: "rgba(0,212,255,0.12)", color: "var(--cyan)",
+                      border: "1px solid rgba(0,212,255,0.3)", borderRadius: 12,
+                    }}>+</button>
                   </div>
 
                   {/* POSITIVE QUICK AMOUNT BUTTONS - HOME TEAM */}
@@ -1255,42 +1287,35 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       value={state.teamB.name}
                       onChange={handleTeamBNameChange}
                       onFocus={handleFocus}
-                      placeholder="TEAM NAME"
+                      placeholder="Enter team name..."
                       maxLength={20}
-                      style={{
-                        width: "100%", height: 46, padding: "0 14px",
-                        fontSize: 15, fontWeight: 600,
-                        fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em",
-                        background: "var(--surface2)", border: "1px solid var(--border2)",
-                        borderRadius: 10, color: "var(--text)",
-                      }}
-                      // onFocus={(e) => e.target.style.borderColor = "var(--amber)"}
-                      onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
+                      className="field-input amber"
+                      style={{ letterSpacing: "0.06em" }}
                   />
                 </div>
 
                 {/* AWAY TEAM SCORE */}
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>SCORE</label>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-                    <button className="btn" onClick={handleDecrementAway} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: "var(--text2)", border: "1px solid var(--border2)" }}>−</button>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 12 }}>
+                    <button className="btn" onClick={handleDecrementAway} style={{
+                      width: 52, height: 52, fontSize: 24, flexShrink: 0,
+                      background: "rgba(255,255,255,0.05)", color: "var(--text2)",
+                      border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12,
+                    }}>−</button>
                     <input
                         type="number"
                         value={state.teamB.score}
                         min={0} max={9999}
                         onChange={handleTeamBScoreChange}
                         onFocus={handleFocus}
-                        style={{
-                          flex: 1, height: 46, textAlign: "center",
-                          fontSize: 22, fontWeight: 700,
-                          fontFamily: "'Bebas Neue', sans-serif",
-                          background: "var(--surface2)", border: "1px solid var(--border2)",
-                          borderRadius: 10, color: "var(--text)", padding: "0 8px",
-                        }}
-                        // onFocus={(e) => e.target.style.borderColor = "var(--amber)"}
-                        onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
+                        className="score-input amber"
                     />
-                    <button className="btn" onClick={handleIncrementAway} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: "var(--amber)", border: "1px solid var(--border2)" }}>+</button>
+                    <button className="btn" onClick={handleIncrementAway} style={{
+                      width: 52, height: 52, fontSize: 24, flexShrink: 0,
+                      background: "rgba(255,184,0,0.12)", color: "var(--amber)",
+                      border: "1px solid rgba(255,184,0,0.3)", borderRadius: 12,
+                    }}>+</button>
                   </div>
 
                   {/* POSITIVE QUICK AMOUNT BUTTONS - AWAY TEAM */}
@@ -1346,15 +1371,8 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       onChange={handleClockChange}
                       onFocus={handleFocus}
                       placeholder="00:00"
-                      style={{
-                        width: "100%", height: 46, padding: "0 14px",
-                        fontSize: 18, fontWeight: 500,
-                        fontFamily: "'DM Mono', monospace",
-                        background: "var(--surface2)", border: "1px solid var(--border2)",
-                        borderRadius: 10, color: "var(--text)",
-                      }}
-                      // onFocus={(e) => e.target.style.borderColor = "var(--cyan)"}
-                      onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
+                      className="field-input"
+                      style={{ fontFamily: "'DM Mono', monospace", fontSize: 20, letterSpacing: "0.15em" }}
                   />
                 </div>
               </div>
