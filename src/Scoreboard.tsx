@@ -75,6 +75,9 @@ function playSound() {
   }
 }
 
+// add pause to sound when the game is paused
+// the reset button is not working
+
 function PlayTenSeconds() {
   try {
     const audio = new Audio(TenSeconds);
@@ -86,10 +89,10 @@ function PlayTenSeconds() {
 }
 
 // At 10 seconds: plays the sound (two beeps)
-function playWarningBeep() { PlayTenSeconds(); }
+// function playWarningBeep() { PlayTenSeconds(); }
 
 // At 0 seconds: plays the sound (final beep)
-function playEndBuzzer() { playSound(); }
+// function playEndBuzzer() { playSound(); }
 
 // ─── Styles ────────────────────────────────────────────────────────────────
 const styles = `
@@ -407,11 +410,11 @@ function CountdownDisplay({ state }: { state: ScoreboardState }) {
       // 5-second warning sound
       if (rem <= 4 && rem > 0 && !warned10Ref.current) {
         warned10Ref.current = true;
-        playWarningBeep();
+        // playWarningBeep();
       }
       if (rem <= 10 && rem > 0 && !warned10Ref.current) {
         warned10Ref.current = true;
-        playEndBuzzer();
+        // playEndBuzzer();
       }
 
       // End buzzer removed
@@ -552,11 +555,11 @@ export function TimerOnlyView({ onBack }: { onBack: () => void }) {
       setRemaining(rem);
       if (rem <= 4 && rem > 0 && !warned10Ref.current) {
         warned10Ref.current = true;
-        playWarningBeep();
+        // playWarningBeep();
       }
       if (rem <= 10 && rem > 0 && !warned10Ref.current) {
         warned10Ref.current = true;
-        playEndBuzzer();
+        // playEndBuzzer();
       }
     };
     tick();
@@ -838,7 +841,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     if (!isNaN(newValue)) {
       setState(prev => ({
         ...prev,
-        teamA: { ...prev.teamA, score: Math.max(0, Math.min(9999, newValue)) }
+        teamA: { ...prev.teamA, score: Math.max(0, Math.min(1000000, newValue)) }
       }));
       setSaved(false);
     }
@@ -858,7 +861,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     if (!isNaN(newValue)) {
       setState(prev => ({
         ...prev,
-        teamB: { ...prev.teamB, score: Math.max(0, Math.min(9999, newValue)) }
+        teamB: { ...prev.teamB, score: Math.max(0, Math.min(1000000, newValue)) }
       }));
       setSaved(false);
     }
@@ -1316,7 +1319,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       onKeyDown={e => e.key === "Enter" && commitTeamBName()}
                       onFocus={handleFocus}
                       placeholder="Enter team name..."
-                      maxLength={20}
+                      maxLength={1000000}
                       className="field-input amber"
                       style={{ letterSpacing: "0.06em" }}
                   />
@@ -1334,7 +1337,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                     <input
                         type="number"
                         value={state.teamB.score}
-                        min={0} max={9999}
+                        min={0} max={1000000}
                         onChange={handleTeamBScoreChange}
                         onFocus={handleFocus}
                         className="score-input amber"
