@@ -837,7 +837,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   };
 
   const handleTeamAScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+    const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 100);
     if (!isNaN(newValue)) {
       setState(prev => ({
         ...prev,
@@ -857,7 +857,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
 
 
   const handleTeamBScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+    const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 100);
     if (!isNaN(newValue)) {
       setState(prev => ({
         ...prev,
@@ -1151,8 +1151,8 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   <input
                       type="number"
                       value={state.timerDuration}
-                      min={0}
-                      max={9999}
+                      // min={0}
+                      // max={9999}
                       onChange={e => {
                         const v = parseInt(e.target.value, 10);
                         if (!isNaN(v) && v > 0) handleSelectDuration(v);
@@ -1268,7 +1268,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                         ref={teamAScoreRef}
                         type="number"
                         value={state.teamA.score}
-                        min={0} max={9999}
+                        // min={0} max={9999}
                         onChange={handleTeamAScoreChange}
                         onFocus={handleFocus}
                         className="score-input cyan"
@@ -1337,7 +1337,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                     <input
                         type="number"
                         value={state.teamB.score}
-                        min={0} max={1000000}
+                        // min={0} max={1000000}
                         onChange={handleTeamBScoreChange}
                         onFocus={handleFocus}
                         className="score-input amber"
