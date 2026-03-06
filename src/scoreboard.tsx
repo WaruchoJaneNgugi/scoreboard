@@ -349,6 +349,7 @@ export function ViewerView({ onBack }: { onBack: () => void }) {
       </div>
   );
 }
+import "../src/style.css"
 // ─── Admin View ── writes to Firebase on publish ───────────────────────────
 export function AdminView({ onBack }: { onBack: () => void }) {
   const [state, setState] = useState<ScoreboardState>(DEFAULT_STATE);
@@ -393,7 +394,9 @@ export function AdminView({ onBack }: { onBack: () => void }) {
       setSaved(false);
     }
   };
-
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  };
   const handleTeamBNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setState(prev => ({
       ...prev,
@@ -412,6 +415,10 @@ export function AdminView({ onBack }: { onBack: () => void }) {
       setSaved(false);
     }
   };
+  const teamANameRef = useRef<HTMLInputElement>(null);
+  const teamAScoreRef = useRef<HTMLInputElement>(null);
+  const teamBNameRef = useRef<HTMLInputElement>(null);
+  const teamBScoreRef = useRef<HTMLInputElement>(null);
 
   const handleClockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setState(prev => ({ ...prev, clock: e.target.value }));
@@ -442,7 +449,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   const handleIncrementHome = () => {
     setState(prev => ({
       ...prev,
-      teamA: { ...prev.teamA, score: Math.min(9999, prev.teamA.score + 1) }
+      teamA: { ...prev.teamA, score: Math.min(9999, prev.teamA.score + 100) }
     }));
     setSaved(false);
   };
@@ -450,7 +457,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   const handleDecrementHome = () => {
     setState(prev => ({
       ...prev,
-      teamA: { ...prev.teamA, score: Math.max(0, prev.teamA.score - 1) }
+      teamA: { ...prev.teamA, score: Math.max(0, prev.teamA.score - 100) }
     }));
     setSaved(false);
   };
@@ -566,9 +573,11 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                     TEAM NAME
                   </label>
                   <input
+                      ref={teamANameRef}
                       type="text"
                       value={state.teamA.name}
                       onChange={handleTeamANameChange}
+                      onFocus={handleFocus}
                       placeholder="TEAM NAME"
                       maxLength={20}
                       style={{
@@ -618,11 +627,15 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       −
                     </button>
                     <input
+                        ref={teamAScoreRef}
+
                         type="number"
                         value={state.teamA.score}
                         min={0}
                         max={9999}
                         onChange={handleTeamAScoreChange}
+                        onFocus={handleFocus}
+
                         style={{
                           flex: 1,
                           height: 46,
@@ -746,9 +759,11 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                     TEAM NAME
                   </label>
                   <input
+
                       type="text"
                       value={state.teamB.name}
                       onChange={handleTeamBNameChange}
+                      onFocus={handleFocus}
                       placeholder="TEAM NAME"
                       maxLength={20}
                       style={{
@@ -803,6 +818,8 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                         min={0}
                         max={9999}
                         onChange={handleTeamBScoreChange}
+                        onFocus={handleFocus}
+
                         style={{
                           flex: 1,
                           height: 46,
@@ -944,6 +961,8 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                       type="text"
                       value={state.clock}
                       onChange={handleClockChange}
+                      onFocus={handleFocus}
+
                       placeholder="00:00"
                       style={{
                         width: "100%",
