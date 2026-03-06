@@ -767,9 +767,9 @@ export function ViewerView({ onBack }: { onBack: () => void }) {
         <div className="fade-up" style={{ width: "100%", maxWidth: 1200, padding: "0 24px 40px", display: "flex", flexDirection: "column", gap: 16 }}>
           <ScoreboardDisplay state={state} />
           <CountdownDisplay state={state} />
-          <div style={{ textAlign: "center", fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text3)", letterSpacing: "0.1em" }}>
-            UPDATES INSTANTLY VIA FIREBASE
-          </div>
+          {/*<div style={{ textAlign: "center", fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text3)", letterSpacing: "0.1em" }}>*/}
+          {/*  UPDATES INSTANTLY VIA FIREBASE*/}
+          {/*</div>*/}
         </div>
       </div>
   );
@@ -1148,7 +1148,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                   <input
                       type="number"
                       value={state.timerDuration}
-                      min={1}
+                      min={0}
                       max={9999}
                       onChange={e => {
                         const v = parseInt(e.target.value, 10);
