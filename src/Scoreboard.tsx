@@ -869,14 +869,14 @@ export function AdminView({ onBack }: { onBack: () => void }) {
   // const teamBNameRef = useRef<HTMLInputElement>(null);
   // const teamBScoreRef = useRef<HTMLInputElement>(null);
 
-  const handleClockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDrafts(d => ({ ...d, clock: e.target.value }));
-  };
-
-  const handlePeriodChange = (period: string) => {
-    setState(prev => ({ ...prev, period }));
-    setSaved(false);
-  };
+  // const handleClockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setDrafts(d => ({ ...d, clock: e.target.value }));
+  // };
+  //
+  // const handlePeriodChange = (period: string) => {
+  //   setState(prev => ({ ...prev, period }));
+  //   setSaved(false);
+  // };
 
   const handleQuickAddHome = (amount: number) => {
     setState(prev => ({
@@ -935,10 +935,10 @@ export function AdminView({ onBack }: { onBack: () => void }) {
     setSaved(false);
   };
 
-  const commitClock = () => {
-    setState(prev => ({ ...prev, clock: drafts.clock }));
-    setSaved(false);
-  };
+  // const commitClock = () => {
+  //   setState(prev => ({ ...prev, clock: drafts.clock }));
+  //   setSaved(false);
+  // };
 
   // const commitTimerDuration = () => {
   //   const v = parseInt(drafts.timerDuration, 10);
@@ -1033,7 +1033,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
 
   const QUICK_AMOUNTS = [100, 500, 600, 1000, 2000];
   const NEGATIVE_QUICK_AMOUNTS = [-100, -500, -600, -1000, -2000];
-  const PERIODS = ["1ST", "2ND", "3RD"];
+  // const PERIODS = ["1ST", "2ND", "3RD"];
 
   const ROUND1_DURATIONS = [80, 90, 100];
   const ROUND2_DURATIONS = [20, 30, 40];
