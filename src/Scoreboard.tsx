@@ -1212,7 +1212,7 @@ export function AdminView({ onBack }: { onBack: () => void }) {
                           background: "var(--surface2)", border: "1px solid var(--border2)",
                           borderRadius: 10, color: "var(--text)", padding: "0 8px",
                         }}
-                        onFocus={(e) => e.target.style.borderColor = "var(--cyan)"}
+                        // onFocus={(e) => e.target.style.borderColor = "var(--cyan)"}
                         onBlur={(e) => e.target.style.borderColor = "var(--border2)"}
                     />
                     <button className="btn" onClick={handleIncrementHome} style={{ width: 46, height: 46, fontSize: 20, flexShrink: 0, background: "var(--surface2)", color: "var(--cyan)", border: "1px solid var(--border2)" }}>+</button>
