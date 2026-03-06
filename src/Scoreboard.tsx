@@ -344,7 +344,7 @@ export function ScoreboardDisplay({ state }: { state: ScoreboardState }) {
           <div style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--surface3)", padding: "8px 18px", borderRadius: 100, border: "1px solid var(--border2)" }}>
             <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: "0.1em", color: "var(--text)" }}>{state.period}</span>
             <span style={{ color: "var(--text3)", fontSize: 14 }}>·</span>
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 16, fontWeight: 500, color: tick ? "var(--cyan)" : "var(--text3)", transition: "color 0.1s" }}>{state.clock}</span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 16, fontWeight: 500, color: tick ? "var(--cyan)" : "var(--text3)", transition: "color 0.1s" }}>Round</span>
           </div>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text3)", letterSpacing: "0.05em" }}>
             {state.lastUpdated ? new Date(state.lastUpdated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}
@@ -1373,39 +1373,39 @@ export function AdminView({ onBack }: { onBack: () => void }) {
               </div>
             </ControlCard>
 
-            <ControlCard accent="var(--text2)" title="MATCH INFO">
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 10, display: "block" }}>PERIOD</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-                    {PERIODS.map(p => (
-                        <button key={p} className="btn" onClick={() => handlePeriodChange(p)} style={{
-                          padding: "10px 6px", fontSize: 13,
-                          fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.1em",
-                          background: state.period === p ? "var(--cyan)" : "var(--surface2)",
-                          color: state.period === p ? "var(--bg)" : "var(--text2)",
-                          border: state.period === p ? "1px solid var(--cyan)" : "1px solid var(--border2)",
-                        }}>{p}</button>
-                    ))}
-                  </div>
-                </div>
+            {/*<ControlCard accent="var(--text2)" title="MATCH INFO">*/}
+            {/*  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>*/}
+            {/*    <div>*/}
+            {/*      <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 10, display: "block" }}>PERIOD</label>*/}
+            {/*      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>*/}
+            {/*        {PERIODS.map(p => (*/}
+            {/*            <button key={p} className="btn" onClick={() => handlePeriodChange(p)} style={{*/}
+            {/*              padding: "10px 6px", fontSize: 13,*/}
+            {/*              fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.1em",*/}
+            {/*              background: state.period === p ? "var(--cyan)" : "var(--surface2)",*/}
+            {/*              color: state.period === p ? "var(--bg)" : "var(--text2)",*/}
+            {/*              border: state.period === p ? "1px solid var(--cyan)" : "1px solid var(--border2)",*/}
+            {/*            }}>{p}</button>*/}
+            {/*        ))}*/}
+            {/*      </div>*/}
+            {/*    </div>*/}
 
-                {/* CLOCK INPUT */}
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>CLOCK</label>
-                  <input
-                      type="text"
-                      value={drafts.clock}
-                      onChange={handleClockChange}
-                      onKeyDown={e => e.key === "Enter" && commitClock()}
-                      onFocus={handleFocus}
-                      placeholder="00:00"
-                      className="field-input"
-                      style={{ fontFamily: "'DM Mono', monospace", fontSize: 20, letterSpacing: "0.15em" }}
-                  />
-                </div>
-              </div>
-            </ControlCard>
+            {/*    /!* CLOCK INPUT *!/*/}
+            {/*    /!*<div>*!/*/}
+            {/*    /!*  <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--text3)", marginBottom: 8, display: "block" }}>CLOCK</label>*!/*/}
+            {/*    /!*  <input*!/*/}
+            {/*    /!*      type="text"*!/*/}
+            {/*    /!*      value={drafts.clock}*!/*/}
+            {/*    /!*      onChange={handleClockChange}*!/*/}
+            {/*    /!*      onKeyDown={e => e.key === "Enter" && commitClock()}*!/*/}
+            {/*    /!*      onFocus={handleFocus}*!/*/}
+            {/*    /!*      placeholder="00:00"*!/*/}
+            {/*    /!*      className="field-input"*!/*/}
+            {/*    /!*      style={{ fontFamily: "'DM Mono', monospace", fontSize: 20, letterSpacing: "0.15em" }}*!/*/}
+            {/*    /!*  />*!/*/}
+            {/*    /!*</div>*!/*/}
+            {/*  </div>*/}
+            {/*</ControlCard>*/}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {error && (
